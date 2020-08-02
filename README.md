@@ -1,8 +1,10 @@
 # Langtons-Ant
-
-Using olc PixelGame Engine 3.
+![image](ScreenShot2.png)
+![image](ScreenShot3.png)
 ![image](ScreenShot1.png)
 
+
+	Using olc PixelGame Engine 3.
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
