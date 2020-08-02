@@ -1,6 +1,5 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
-#include <unordered_map>
 
 enum Buttons {
 	Simulation, Add, Remove, Undefined
@@ -17,16 +16,17 @@ class LangtonsAnt : public olc::PixelGameEngine
 	std::pair<int, int> direction{ 0,-1 };
 	olc::Pixel color = olc::RED;
 
+	int counter = 0;
+
 	std::vector<olc::Pixel> colors;
 	int maxNumberOfColors = 10;
 	std::vector<bool> turnLeft;
 	
 	bool startSimulation = false;
-
+	bool wait = false;
 	int stepSize = 10;
 	std::vector<std::vector<int>> grid;
 	
-	int counter = 0;
 public:
 	LangtonsAnt()
 	{
@@ -37,29 +37,27 @@ public:
 	bool OnUserCreate() override
 	{
 		InitializeData();
-		/*for (int i = 0; i < 10; ++i) {
-			colors.push_back(olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
-		}
-		turnLeft = std::vector<bool>{ true, false, true, false, true, false, false, true, false, true };
-		*/
 		DrawInterface();
-
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-
-		if (startSimulation && colors.size()) {
+		if (wait) {
+			wait = false;
+			startSimulation = false;
+			for (int i = 0; i < 1e9; ++i) {}
+			InitializeData();
+			DrawInterface();
+		}
+		else if (startSimulation && colors.size()) {
+			if (!counter) Clear(olc::BLACK);
 			sAppName = std::to_string(counter);
 			for (int i = 0; i < computationalSteps; ++i) {
+				++counter;
 				if (pos.first < 0 || pos.first >= ScreenWidth() || pos.second < 0 || pos.second >= ScreenHeight())
 				{
-					// Find Better Way to retain Picture
-					for (int i = 0; i < 1e9; ++i) {}
-					InitializeData();
-					Clear(olc::BLACK);
-					DrawInterface();
+					wait = true;
 					startSimulation = false;
 					break;
 				}
@@ -80,23 +78,25 @@ public:
 				ChangeDirection(turnLeft[idx]);
 				addPair(pos, direction, stepSize);
 			}
-			++counter;
 		}
 		else {
-			Clear(olc::BLACK);
 			DrawInterface();
+
 			int x = 10;
 			int y = ScreenHeight() / 2;
+			
 			for (int i = 0; i < colors.size(); ++i) {
 				auto& col = colors[i];
-				FillRect(x, y, 50, 50, col);
-				DrawString(x, y - 25, turnLeft[i] ? "Left" : "Right");
-				x += 100;
-
+				FillRect(x, y, 100, 100, col);
+				DrawString(x, y - 50, turnLeft[i] ? "Left" : "Right", olc::WHITE, 3);
+				x += 200;
 			}
 		}
+		
+
 		if (!HandleUserInput())
 			return false;
+
 		return true;
 	}
 
@@ -107,25 +107,31 @@ public:
 		pos.second = ScreenHeight() / 2;
 		grid.clear();
 		grid.resize(ScreenWidth(), std::vector<int>(ScreenHeight(), -1));
+		counter = 0;
 	}
 
 	void DrawInterface() {
-		int x = 10;
+		Clear(olc::BLACK);
+		int x = 10; 
 		int y = 30;
 
-		// Start Button
-		DrawString({ x,y }, "Start Simulation");
-		DrawRect(5, 25, 150, 25);
+		// Start Button		
+		//DrawRect(5, 5, 500, 100, olc::WHITE);
+		DrawString({ x-5,5 },  "------------------", olc::WHITE, 3);
+		DrawString({ x,y },    " Start Simulation", olc::WHITE, 3);
+		DrawString({ x-5,65 }, "------------------", olc::WHITE, 3);
 
-		x += 200;
+		x += 600;
 		// Add Button
-		DrawString({ x,y }, "Add Color");
-		DrawRect(x - 5, 25, 150, 25);
-
-		x += 200;
+		DrawString({ x - 5,5 }, "-----------", olc::WHITE, 3);
+		DrawString({ x,y },     " Add Color", olc::WHITE, 3);
+		DrawString({ x - 5,65 }, "----------", olc::WHITE, 3);
+		
+		x += 600;
 		// Remove Button
-		DrawString({ x,y }, "Remove Color");
-		DrawRect(x - 5, 25, 150, 25);
+		DrawString({ x - 5,5 }, "---------------", olc::WHITE, 3);
+		DrawString({ x,y },     " Remove Color", olc::WHITE, 3);
+		DrawString({ x - 5,65 }, "--------------", olc::WHITE, 3);
 	}
 
 	bool HandleUserInput() {
@@ -135,11 +141,10 @@ public:
 			int a = 1;
 		}
 		if (GetKey(olc::Key::SPACE).bPressed) {
-			startSimulation = false;
+			wait = true;
 		}
 		if (GetMouse(0).bPressed) {
 			if (CheckMouseBounds() == Simulation) {
-				Clear(olc::BLACK);
 				InitializeData();
 				startSimulation = true;
 			}
@@ -153,10 +158,10 @@ public:
 		}
 
 		if (GetMouseWheel() > 0) {
-			computationalSteps += 100;
+			computationalSteps += 1000;
 		}
-		if (GetMouseWheel() < 0) {
-			computationalSteps -= 100;
+		if (GetMouseWheel() < 0 && computationalSteps > 1000) {
+			computationalSteps -= 1000;
 		}
 		return true;
 	}
@@ -165,13 +170,13 @@ public:
 		int x = GetMouseX();
 		int y = GetMouseY();
 
-		if (5 <= x && x < 155 && 25 <= y && y < 50) {
+		if (5 <= x && x < 450 && 25 <= y && y < 90) {
 			return Simulation;
 		}
-		if (195 <= x && x < 345 && 25 <= y && y < 50) {
+		if (595 <= x && x < 850 && 25 <= y && y < 90) {
 			return Add;
 		}
-		if (395 <= x && x < 545 && 25 <= y && y < 50) {
+		if (1195 <= x && x < 1500 && 25 <= y && y < 90) {
 			return Remove;
 		}
 		return Undefined;
@@ -227,7 +232,7 @@ public:
 int main()
 {
 	LangtonsAnt game;
-	if (game.Construct(2000, 800, 1, 1))
+	if (game.Construct(2000, 2000, 1, 1))
 		game.Start();
 	return 0;
 }
