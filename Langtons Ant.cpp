@@ -24,7 +24,7 @@ class LangtonsAnt : public olc::PixelGameEngine
 	
 	bool startSimulation = false;
 	bool wait = false;
-	int stepSize = 10;
+	int stepSize = 3;
 	std::vector<std::vector<int>> grid;
 	
 public:
@@ -87,9 +87,9 @@ public:
 			
 			for (int i = 0; i < colors.size(); ++i) {
 				auto& col = colors[i];
-				FillRect(x, y, 100, 100, col);
-				DrawString(x, y - 50, turnLeft[i] ? "Left" : "Right", olc::WHITE, 3);
-				x += 200;
+				FillRect(x, y, 20, 20, col);
+				DrawString(x, y - 10, turnLeft[i] ? "Left" : "Right", olc::WHITE, 1);
+				x += 50;
 			}
 		}
 		
@@ -117,21 +117,21 @@ public:
 
 		// Start Button		
 		//DrawRect(5, 5, 500, 100, olc::WHITE);
-		DrawString({ x-5,5 },  "------------------", olc::WHITE, 3);
-		DrawString({ x,y },    " Start Simulation", olc::WHITE, 3);
-		DrawString({ x-5,65 }, "------------------", olc::WHITE, 3);
+		DrawString({ x-5,5 },  "------------------", olc::WHITE, 1);
+		DrawString({ x,y },    " Start Simulation", olc::WHITE, 1);
+		DrawString({ x-5,65 }, "------------------", olc::WHITE, 1);
 
-		x += 600;
+		x += 200;
 		// Add Button
-		DrawString({ x - 5,5 }, "-----------", olc::WHITE, 3);
-		DrawString({ x,y },     " Add Color", olc::WHITE, 3);
-		DrawString({ x - 5,65 }, "----------", olc::WHITE, 3);
+		DrawString({ x - 5,5 }, "-----------", olc::WHITE, 1);
+		DrawString({ x,y },     " Add Color", olc::WHITE, 1);
+		DrawString({ x - 5,65 }, "----------", olc::WHITE, 1);
 		
-		x += 600;
+		x += 200;
 		// Remove Button
-		DrawString({ x - 5,5 }, "---------------", olc::WHITE, 3);
-		DrawString({ x,y },     " Remove Color", olc::WHITE, 3);
-		DrawString({ x - 5,65 }, "--------------", olc::WHITE, 3);
+		DrawString({ x - 5,5 }, "---------------", olc::WHITE, 1);
+		DrawString({ x,y },     " Remove Color", olc::WHITE, 1);
+		DrawString({ x - 5,65 }, "--------------", olc::WHITE, 1);
 	}
 
 	bool HandleUserInput() {
@@ -170,13 +170,13 @@ public:
 		int x = GetMouseX();
 		int y = GetMouseY();
 
-		if (5 <= x && x < 450 && 25 <= y && y < 90) {
+		if (5 <= x && x < 150 && 25 <= y && y < 90) {
 			return Simulation;
 		}
-		if (595 <= x && x < 850 && 25 <= y && y < 90) {
+		if (205 <= x && x < 350 && 25 <= y && y < 90) {
 			return Add;
 		}
-		if (1195 <= x && x < 1500 && 25 <= y && y < 90) {
+		if (400 <= x && x < 750 && 25 <= y && y < 90) {
 			return Remove;
 		}
 		return Undefined;
@@ -232,7 +232,7 @@ public:
 int main()
 {
 	LangtonsAnt game;
-	if (game.Construct(2000, 2000, 1, 1))
+	if (game.Construct(800, 1000, 1, 1))
 		game.Start();
 	return 0;
 }
